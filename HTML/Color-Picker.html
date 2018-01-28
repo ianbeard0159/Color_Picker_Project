@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang = "en">
+    <head>
+        <meta charset="utf-8" />
+        <title></title>
+    
+        <!-- Set page width and initial zoom to work with 
+            whatever device is being used -->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+        <!-- Bootstrap-CSS -->
+        <link rel="stylesheet" 
+              href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <!-- Bootstrap-jQuerry -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <!-- Bootstrap-JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <!-- CSS File -->
+        <link rel="stylesheet" href="../CSS/Color-Picker.css">
+        <!-- JavaScript File -->
+        <script src="../JavaScript/Color-Picker.js"></script>
+    </head>
+    <body>
+        <!-- Menu system -->
+        <div class = "modal">
+            <!-- Login Menu -->
+            <div class = "menu start-menu">
+                <div class = "text modal-header">Sign In</div>
+                <div class = "modal-window login-window">
+                    <form class = "form login">
+                        <div class = "form-block">
+                            Username:<br>
+                            <input type = "text" 
+                                    name = "username" 
+                                    class = "text-field"
+                                    id = "loginUser"
+                                    value = "">
+                        </div>
+                        <div class = "form-block">
+                            Password:<br>
+                            <input type = "password" 
+                                    name = "password" 
+                                    class = "text-field"
+                                    id = "loginPass">
+                        </div>
+                        <div class = "login-error"></div>
+                        <div class = "form-block-centered">
+                            <input type = "button" 
+                                    value = "Sign In" 
+                                    class = "clickable button"
+                                    id = "login-btn">
+                            <a id = "new-user-link">Create New Account</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- Create Account Menu -->
+            <div class = "menu new-user-menu">
+                <div class = "text modal-header">Create New User</div>
+                <div class = "modal-window new-user-window">
+                    <div class = "new-user-row">
+                        <form class = "form new-user">
+                            <div class = "form-block">
+                                Username:<br>
+                                <input type = "text" 
+                                        name = "username" 
+                                        class = "text-field"
+                                        id = "username"
+                                        value = "">
+                            </div>
+                            <div class = "form-block">
+                                Password:<br>
+                                <input type = "password" 
+                                        name = "password" 
+                                        class = "text-field"
+                                        id = "passA">
+                            </div>
+                            <div class = "form-block">
+                                Repeat Password:<br>
+                                <input type = "password" 
+                                        name = "re-password" 
+                                        class = "text-field"
+                                        id = "passB">
+                            </div>
+                        </form>
+                        <div class = "vertical-divider"></div>
+                        <div class = "text-block">
+                            <p id = "new-user-requirements">
+                                - All Fields must be filled<br>
+                                - Password must be at least 8 characters<br>
+                                - Username and password cannot contain 
+                                the characters<tt> ',  ",</tt> or =
+                            </p>
+                            <p id = "new-user-errors"></p>
+                        </div>
+                    </div>
+                    <div class = new-user-row>
+                        <input type = "button" 
+                                class = "clickable button" 
+                                id = "new-user-btn"
+                                value = "Create Account">
+                    </div>
+                </div>
+            </div>
+            <!-- New Palate Menu -->
+            <div class = "menu new-palate-menu">
+                <div class = "text modal-header">
+                    New Palate
+                </div>
+                <div class = "modal-window new-palate-window">
+                    <form class = "form new-palate">
+                        <div class = "form-block">
+                            Save<br>
+                            <input type = "text" 
+                                    name = "palatName" 
+                                    class = "text-field"
+                                    id = "palate-name"
+                                    value = "">
+                        </div>
+                        <div class = "new-palate-error"></div>
+                        <div class = "form-block-centered">
+                            <input type = "button" 
+                                    value = "Create Palate" 
+                                    class = "clickable button"
+                                    id = "new-palate-btn">
+                            <a id = "cancel-link">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- Load Palate Menu -->
+            <div class = "load-palate menu">
+                <div class = "text modal-header">
+                    Load Palate
+                </div>
+                <div class = "load-palate modal-window">
+                    <form class = "load-palate form">
+                        <div class = "form-block">
+                            Select Palate:<br>
+                            <div class = "existing-palate-field">
+                                
+                            </div>
+                        </div>
+                        <div class = "new-palate-error"></div>
+                        <div class = "form-block-centered">
+                            <input type = "button" 
+                                    value = "Load" 
+                                    class = "clickable button"
+                                    id = "load-palate-btn">
+                            <a id = "cancel-link">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- Save Palate Menu -->
+            <div class = "save-palate menu">
+                <div class = "text modal-header">
+                    Save Palate
+                </div>
+                <div class = "save-palate modal-window">
+                    <form class = "save-palate form">
+                        <div class = "form-block" id = "save">
+                            <div class = "existing-palate-field" id = "save">
+                                
+                            </div>
+                        </div>
+                        <div class = "save-row">
+                            <div class = "text save-text clickable">
+                                <p>Save as</p>
+                            </div>
+                            <input type = "text" id = "save-field">
+                            </div>
+                        <a id = "cancel-link">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Page -->
+        <div class = "main">
+            <div class = "flex-box">
+                <!-- Top Row -->
+                <div class = "color-box">
+                    <!-- Color Display -->
+                    <div class = "menu color-menu">
+                        <div class = "color-window"></div>
+                        <div class = "color-menu-row">
+                            <div class = "text color-text clickable">
+                                <p>Add Color</p>
+                            </div>
+                            <div class = "text color-output">
+                                <p id = "color-text"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class = "buffer"></div>
+
+                    <!-- Option Sliders -->
+                    <div class = "options-box">
+                        <!-- Hue Slider -->
+                        <div class = "menu hue-menu">
+                            <div class = "clickable arrow text hue-left">
+                                    <span class="glyphicon glyphicon-triangle-left"></span>
+                            </div>
+                            <input type = "text" id = "hue-field" maxlength="3">
+                            <div class = "hue-window">
+                                <div class = "hue-bar">
+                                    <div class = "hue-selector"></div>
+                                </div>
+                            </div>
+                            <div class = "clickable arrow text hue-right">
+                                    <span class="glyphicon glyphicon-triangle-right"></span>
+                            </div>
+                        </div>
+                        <div class = "lable">Hue</div>
+                        <div class = "buffer"></div>
+                        <!-- Saturation Slider -->
+                        <div class = "menu saturation-menu">
+                                <div class = "clickable text saturation-left">
+                                        <span class="glyphicon glyphicon-triangle-left"></span>
+                                </div>
+                                <input type = "text" id = "saturation-field" maxlength="3">
+                                <div class = "saturation-window">
+                                    <div class = "saturation-bar">
+                                        <div class = "saturation-selector"></div>
+                                    </div>
+                                </div>
+                                <div class = "clickable text saturation-right">
+                                        <span class="glyphicon glyphicon-triangle-right"></span>
+                                </div>
+                        </div>
+                        <div class = "lable">Saturation</div>
+                        <div class = "buffer"></div>
+                        <!-- Lightness Slider -->
+                        <div class = "menu lightness-menu">
+                            <div class = "clickable text lightness-left">
+                                    <span class="glyphicon glyphicon-triangle-left"></span>
+                            </div>
+                            <input type = "text" id = "lightness-field" maxlength="3">
+                            <div class = "lightness-window">
+                                <div class = "lightness-bar">
+                                    <div class = "lightness-selector"></div>
+                                </div>
+                            </div>
+                            <div class = "clickable text lightness-right">
+                                <span class="glyphicon glyphicon-triangle-right"></span>
+                            </div>
+                        </div>
+                        <div class = "lable">Lightness</div>
+                    </div>
+                </div>
+                <!-- Button Row -->
+                <div class = "palate-buttons">
+                    <button type="button" 
+                            class="clickable button"
+                            id = "new-palate">
+                            New
+                     </button>
+                    <button type="button" 
+                            class="clickable button"
+                            id = "save-palate">
+                            Save
+                    <button type="button" 
+                            class="clickable button"
+                            id = "load-palate">
+                            Load
+                     </button>
+                </div>
+                <!-- Palate Display -->
+                <div class = "lable palate-lable" id = "palate-lable"></div>
+                <div class = "menu palate-menu">
+                    <div class = "text palate-text clickable">
+                        <p>Clear Palate</p>
+                    </div>
+                    <div class = "palate-window">
+                    </div>
+                </div>
+                <div class = "lable user-lable" id = "user-lable"></div>
+            </div>
+
+        </div>
+    </body>
+</html>

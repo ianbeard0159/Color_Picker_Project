@@ -1,0 +1,317 @@
+var mysql = require('mysql');
+var express = require('express');
+var path = require('path');
+var app = express();
+
+// -=Local Host Connection to Server=-
+
+var con = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: "password"
+});
+
+// Create a new Database
+function create_db(name){
+    // Run an SQL querry using the input string
+    con.database = name;
+    var sql = "CREATE DATABASE IF NOT EXISTS " + name;
+    con.query(sql, function (err, result) {
+      if (err) throw err;
+      console.log("Database '" + name + "' created or already exists");
+    });
+    con.query("USE " + name, function (err, result) {
+        if (err) throw err;
+        console.log("Database '" + name + "' selected");
+      });
+}
+
+// Create a new table
+function create_table(name, columns){
+    // Convert the input columns into a string to be used in the query
+    columnString = "(";
+    firstLoop = true;
+    for (x in columns){
+        if(!firstLoop){
+            columnString += ", "
+        }
+        columnString += columns[x];
+        firstLoop = false;
+    }
+    columnString += ");";
+    // Run an SQL querry using the input string
+    var sql = "CREATE TABLE IF NOT EXISTS " + name + columnString;
+    con.query(sql, function (err, result) {
+        if (err) throw err;
+        console.log("Table '" + name + "' created or already exists");
+    });
+}
+
+// Drop an existing table
+function drop_table(name){
+    // Run an SQL querry using the input string
+    var sql = "DROP TABLE IF EXISTS " + name;
+    con.query(sql, function (err, result) {
+        if (err) throw err;
+        console.log("Table '" + name + "' dropped or didn't exist");
+      });
+}
+
+// Create an entry in the database for a new palate
+function add_palate(user, name){
+    // Identify User
+    sql = "SELECT user_id FROM userTable WHERE username='" + user + "';";
+    con.query(sql, function(err, result) {
+        if(err) throw err;
+        userID = result[0].user_id;
+
+        // Add the palate to the database under the current user's account
+        sql = "INSERT INTO palateTable (user_id, palate_name) " 
+        + "SELECT * FROM (SELECT " + userID + ", '" + name + "') AS temp"
+        + "WHERE NOT EXISTS ( SELECT user_id, palate_name FROM palateTable"
+                           + "WHERE user_id = " + userID + " AND palate_name = '" + name + "')";
+        con.query(sql, function(err, result){
+            if(err) throw err;
+            console.log("palate added");
+        });
+    });
+}
+
+
+// When the connection is established, create the database if it doesn't
+//      already exist
+con.connect(function(err) {
+  if (err) throw err;
+  console.log("Connected!");
+
+    // Define tables used in database
+    var userTable = [
+        "user_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY",
+        "username VARCHAR(255)",
+        "pass VARCHAR(255)"
+    ]
+    var palateTable = [
+        "palate_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY",
+        "palate_name VARCHAR(255)",
+        "user_id INT",
+        "FOREIGN KEY (user_id) REFERENCES userTable(user_id)"
+    ]
+    var colorTable = [
+        "color_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY",
+        "color_value VARCHAR(255)",
+        "palate_id INT",
+        "FOREIGN KEY (palate_id) REFERENCES palateTable(palate_id)"
+    ]
+    // Create the database and tables if the don't already exist
+    create_db("colorPickerDB");
+    create_table("userTable", userTable);
+    create_table("palateTable", palateTable);
+    create_table("colorTable", colorTable);
+
+});
+
+// -= Express Framework =-
+
+app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, '/..')));
+
+var bodyParser = require('body-parser');
+var urlencodedParser = bodyParser.urlencoded({ extended: false })
+
+// Load the home page
+app.get('/', function(req, res){
+    res.sendFile(path.resolve(__dirname + "/" + "../HTML/Color-Picker.html"));
+    console.log(__dirname + "/" + "../HTML/Color-Picker.html");
+});
+
+// Check if the user has valid login credentials
+app.post('/login', urlencodedParser, function(req, res){
+    inUser = req.body.user;
+    inPass = req.body.pass;
+    console.log("Login Attempt");
+    // Check if the input username/password combination is in the database
+    var sql = "SELECT username, pass FROM userTable WHERE EXISTS (" 
+                + "SELECT username, pass FROM userTable WHERE "
+                + "username='" + inUser + "' AND "
+                + "pass='" + inPass + "');";
+    con.query(sql, function (err, result, fields) {
+        if (err) throw err;
+        // Return whether or not the login credentials were valid
+        if (result == ""){
+            console.log("Invalid User");
+            res.end("fail");
+        }
+        else{
+            console.log("Success");
+            res.end("success");
+        }
+    });
+
+});
+
+// Add new accounts to the database
+app.post('/new-user', urlencodedParser, function(req, res){
+    errorString = "";
+    injectCheck = false;
+
+    inUser = req.body.user;
+    inPassA = req.body.passA;
+    inPassB = req.body.passB;
+    console.log("New User Attempt");
+
+    // Check if the password is valid
+    if(inPassA == ""){
+        errorString += "- Must enter a password<br>"
+    }
+    else if(inPassA.length < 8){
+        errorString += "- Password is less than 8 characters<br>";
+    }
+    if(inPassA != inPassB){
+        errorString += "- Passwords do not match<br>";
+    }
+    if(inPassA.includes("=") || inPassA.includes("\"") || inPassA.includes("\'")){
+        errorString += "- Password contains invalid characters<br>";
+        injectCheck = true;
+    }
+
+    // Check to see if the username is valid
+    if(inUser == ""){
+        errorString += "- Must enter a username<br>"
+    }
+    if(inUser.includes("=") || inUser.includes("\"") || inUser.includes("\'")){
+        errorString += "- Username contains invalid characters<br>";
+        injectCheck = true;
+    }
+    // Dont send the input to the database if it contains invalid characters
+    if(!injectCheck){
+        // Check to see if the account already exists
+        var sql = "SELECT username FROM userTable WHERE EXISTS (" 
+                + "SELECT username FROM userTable WHERE "
+                + "username='" + inUser + "');";
+        con.query(sql, function(err, result, fields){
+            if(err) throw (err);
+            // If the username is already being used, add that to the error string
+            if(result != ""){
+                errorString += "- Username is not available<br>";
+            }
+        
+            // If there are no errors, create the account
+            if(errorString == ""){
+                sql = "INSERT INTO userTable (username, pass) "
+                    + "VALUES ('" + inUser + "', '" + inPassA + "');";
+                con.query(sql, function (err, result, fields) {
+                    if (err) throw err;
+                });
+                res.end("success");
+            }
+            // Else, return the error string
+            else{
+                res.end(errorString);
+            }
+        });
+    }
+    else{
+        res.end(errorString);
+    }
+});
+
+// Add a new palate to the database
+app.post("/new-palate", urlencodedParser, function(req, res){
+    inUser = req.body.user;
+    inName = req.body.name;
+    injectCheck = false;
+
+    if(!injectCheck)
+    {
+        add_palate(inUser, inName);
+        res.end("success");
+    }
+    else{
+        res.end("fail");
+    }
+});
+
+// Populate the list of existing palates in the save/load menus
+app.post("/populate-palate-list", urlencodedParser, function(req, res){
+    inUser = req.body.user;
+    output = {palateArray: []};
+    var sql = "SELECT palate_name FROM palateTable "
+            + "WHERE user_id=(SELECT user_id FROM userTable "
+            + "WHERE username='" + inUser + "');";
+    con.query(sql, function(err, result, fields){
+        if(err) throw(err);
+        console.log(inUser + ":\n" + sql + "\n");
+        for(i = 0; i < result.length; i++){
+            console.log(result[i].palate_name);
+            output.palateArray.push(result[i].palate_name);
+        }
+        res.end(JSON.stringify(output));
+    });
+});
+
+// Save the current Palate
+app.post("/save-palate", urlencodedParser, function(req, res){
+    inUser = req.body.user;
+    inPalate = req.body.palate;
+    inColors = (JSON.parse(req.body.colors)).colorArray;
+
+    console.log(inColors + "\n" + inUser);
+    //Creat the palate if it doesn't exist
+    var sql = ""
+    // Clear all of the colors that used to belong to the palate being saved
+    //      Then add the new colors to the color table
+    var sql = "DELETE FROM colorTable "
+            + "WHERE palate_id=(SELECT palate_id FROM palateTable "
+                             + "WHERE palate_name='" + inPalate 
+                             + "' AND user_id=(SELECT user_id FROM userTable "
+                                            + "WHERE username='" + inUser + "'));";
+    con.query(sql, function(err, result, fields){
+        if(err) throw(err);
+        sql = "INSERT INTO colorTable (color_value, palate_id) VALUES ";
+        for(i = 0; i < inColors.length; i++){
+            if(i != 0){
+                sql += ", ";
+            }
+            sql += "('" + inColors[i] + "', (SELECT palate_id FROM palateTable "
+                                                + "WHERE palate_name='" + inPalate 
+                                                + "' AND user_id=(SELECT user_id FROM userTable "
+                                                               + "WHERE username='" + inUser + "')))";
+        }
+        sql += ";";
+        con.query(sql, function(err, result, fields){
+            if(err) throw(err);
+    
+            res.end(inPalate);
+        });
+    });
+});
+
+// Load Existing Palate
+app.post("/load-palate", urlencodedParser, function(req, res){
+    inUser = req.body.user;
+    inPalate = req.body.palate;
+    output = {outColors: []};
+
+    console.log("Loading: " + inPalate);
+
+    sql = "SELECT color_value FROM colorTable "
+        + "WHERE palate_id=(SELECT palate_id FROM palateTable "
+                         + "WHERE palate_name='" + inPalate 
+                         + "' AND user_id=(SELECT user_id FROM userTable "
+                                        + "WHERE username='" + inUser + "'));";
+    con.query(sql, function(err, result, fields){
+        if(err) throw(err);
+        for(i = 0; i < result.length; i++){
+            output.outColors.push(result[i].color_value);
+        }
+        res.end(JSON.stringify(output));
+    });
+});
+
+// Start a connection to the database
+var server = app.listen(8081, function(){
+    var host = server.address().address;
+    var port = server.address().port;
+
+    console.log("Listening at http://" + host + ":" + port);
+});
