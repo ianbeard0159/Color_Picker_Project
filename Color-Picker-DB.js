@@ -113,15 +113,15 @@ con.connect(function(err) {
 // -= Express Framework =-
 
 app.use(express.static('public'));
-app.use(express.static(path.join(__dirname, '/..')));
+app.use(express.static(path.join(__dirname, '/static')));
 
 var bodyParser = require('body-parser');
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 // Load the home page
 app.get('/', function(req, res){
-    res.sendFile(path.resolve(__dirname + "/" + "../HTML/Color-Picker.html"));
-    console.log(__dirname + "/" + "../HTML/Color-Picker.html");
+    res.sendFile(path.resolve(__dirname + "/" + "static/HTML/Color-Picker.html"));
+    console.log(__dirname + "/" + "static/HTML/Color-Picker.html");
 });
 
 // Check if the user has valid login credentials
