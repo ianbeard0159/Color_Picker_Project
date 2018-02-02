@@ -1,0 +1,14 @@
+{
+  "name": "ianbeard0159-color-picker",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "mysql": "latest",
+    "path": "latest",
+    "express": "latest",
+    "body-parser": "latest"
+  },
+  "scripts": {
+    "start": "node app.js"
+  }
+}
