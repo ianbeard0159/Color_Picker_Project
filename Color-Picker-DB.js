@@ -6,9 +6,11 @@ var app = express();
 // -=Local Host Connection to Server=-
 
 var con = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "password"
+  
+    host: process.env.RDS_HOSTNAME,
+    user: process.env.RDS_USERNAME,
+    password: process.env.RDS_PASSWORD,
+    port: process.env.RDS_PORT
 });
 
 // Create a new Database
