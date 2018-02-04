@@ -51,7 +51,7 @@ function populate_palate_menu(inList){
 // Fill the list of existing palates in the save/lad menus
 function populate_palate_list(inUser){
     $(".existing-palate-field").html("- No Palates Exist");
-    $.post("http://127.0.0.1:8081/populate-palate-list",
+    $.post("/populate-palate-list",
     {
         user: inUser
     },
@@ -220,7 +220,7 @@ $(document).ready(function(){
         user = $("#loginUser").val();
         pass = $("#loginPass").val();
         // Check the database to see if the submitted login credentials are valid
-        $.post("http://127.0.0.1:8081/login",
+        $.post("/login",
         {
             user: $("#loginUser").val(),
             pass: $("#loginPass").val()
@@ -249,7 +249,7 @@ $(document).ready(function(){
     $("#new-user-btn").click(function(){
         console.log($("#loginUser").val());
         // Check the database to see if the submitted login credentials are valid
-        $.post("http://127.0.0.1:8081/new-user",
+        $.post("/new-user",
         {
             user: $("#username").val(),
             passA: $("#passA").val(),
@@ -274,7 +274,7 @@ $(document).ready(function(){
         console.log("New Palate Attempt");
         inPalate = $("#palate-name").val();
         // Attempt to create the new palate
-        $.post("http://127.0.0.1:8081/new-palate",
+        $.post("/new-palate",
         {
             user: currentUser,
             name: inPalate
@@ -336,7 +336,7 @@ $(document).ready(function(){
         if(selectedPalate != ""){
             currentPalate = selectedPalate;
             selectedPalate = "";
-            $.post("http://127.0.0.1:8081/load-palate",
+            $.post("/load-palate",
             {
                 user: currentUser,
                 palate: currentPalate
@@ -373,7 +373,7 @@ $(document).ready(function(){
 
         console.log(inPalate);
 
-        $.post("http://127.0.0.1:8081/save-palate",
+        $.post("/save-palate",
         {
             user: currentUser,
             palate: inPalate,
