@@ -282,6 +282,7 @@ $(document).ready(function(){
         function(data, status){
             if(data == "success"){
                 currentPalate = inPalate;
+                palateList = [];
                 populate_palate_menu(currentPalate);
                 $(".modal").css("display", "none");
                 $(".new-palate-menu").css("display", "none");
@@ -365,10 +366,11 @@ $(document).ready(function(){
         $(".modal").css("display", "block");
         $(".save-palate.menu").css("display", "block");
         populate_palate_list(currentUser);
+        $(".palate-list-entry#" + currentPalate).click();
         state = "save palate";
     });
     $(".save-text").click(function(){
-        var inPalate = selectedPalate;
+        var inPalate = $("#save-field").val();
         var colorObj = {colorArray: palateList};
 
         console.log(inPalate);
