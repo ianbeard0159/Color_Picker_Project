@@ -205,7 +205,7 @@
                             <input type = "text" id = "hue-field" maxlength="3">
                             <div class = "hue-window">
                                 <div class = "hue-bar">
-                                    <div class = "hue-selector"></div>
+                                    <input type="range" min="0" max="360" value="0" class="slider" id="hue-slider">
                                 </div>
                             </div>
                             <div class = "clickable arrow text hue-right">
@@ -216,18 +216,18 @@
                         <div class = "buffer"></div>
                         <!-- Saturation Slider -->
                         <div class = "menu saturation-menu">
-                                <div class = "clickable text saturation-left">
-                                        <span class="glyphicon glyphicon-triangle-left"></span>
+                            <div class = "clickable text saturation-left">
+                                    <span class="glyphicon glyphicon-triangle-left"></span>
+                            </div>
+                            <input type = "text" id = "saturation-field" maxlength="3">
+                            <div class = "saturation-window">
+                                <div class = "saturation-bar">
+                                    <input type="range" min="0" max="100" value="100" class="slider" id="saturation-slider">
                                 </div>
-                                <input type = "text" id = "saturation-field" maxlength="3">
-                                <div class = "saturation-window">
-                                    <div class = "saturation-bar">
-                                        <div class = "saturation-selector"></div>
-                                    </div>
-                                </div>
-                                <div class = "clickable text saturation-right">
-                                        <span class="glyphicon glyphicon-triangle-right"></span>
-                                </div>
+                            </div>
+                            <div class = "clickable text saturation-right">
+                                    <span class="glyphicon glyphicon-triangle-right"></span>
+                            </div>
                         </div>
                         <div class = "lable">Saturation</div>
                         <div class = "buffer"></div>
@@ -239,7 +239,7 @@
                             <input type = "text" id = "lightness-field" maxlength="3">
                             <div class = "lightness-window">
                                 <div class = "lightness-bar">
-                                    <div class = "lightness-selector"></div>
+                                    <input type="range" min="0" max="100" value="50" class="slider" id="lightness-slider">
                                 </div>
                             </div>
                             <div class = "clickable text lightness-right">

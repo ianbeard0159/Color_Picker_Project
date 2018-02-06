@@ -49,6 +49,31 @@ div{
     background: radial-gradient(rgba(0, 196, 230, 0.644), rgb(0, 195, 230));
     color: white;
 }
+.lable{
+    height: 20px;
+    width: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-style: solid;
+    border-width: 2px;
+    border-color: rgb(0, 195, 230);
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-top-width: 0px;
+    box-shadow: 0px 0px 5px rgb(0, 195, 230);
+    background: radial-gradient(rgba(0, 34, 39, 0.582), rgb(0, 63, 73));
+    color: rgb(83, 212, 235);
+    font-size: 13px;
+}
+input{
+    text-shadow: 0px 0px 2px rgb(55, 194, 236), 
+                    0px 0px 1px rgb(18, 107, 134),
+                    0px 0px 10px rgb(0, 52, 68);
+}
+
+/* Palate Display */
+
 .palate-menu{
     height: 40px;
     width: 80%;
@@ -84,6 +109,22 @@ div{
     width: 30px;
     margin-left: 3px;
 }
+.lable.user-lable{
+    width: 250px;
+}
+.lable.palate-lable{
+    width: 250px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+    border-bottom-width: 0px;
+    border-top-width: 2px;
+    margin-top: 20px;
+}
+
+/* Color Display */
+
 .color-menu{
     width: 40%;
     height: 100%;
@@ -121,6 +162,9 @@ div{
     display: flex;
     justify-content: center;
 }
+
+/* -= Selectors =- */
+
 .options-box{
     width: 40%;
     height: 100%;
@@ -133,36 +177,41 @@ div{
     height: 10px;
     width: 30px;
 }
-.lable{
-    height: 20px;
-    width: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-style: solid;
-    border-width: 2px;
-    border-color: rgb(0, 195, 230);
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
-    border-top-width: 0px;
-    box-shadow: 0px 0px 5px rgb(0, 195, 230);
-    background: radial-gradient(rgba(0, 34, 39, 0.582), rgb(0, 63, 73));
-    color: rgb(83, 212, 235);
-    font-size: 13px;
+.slider{
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 100%;
+    background: none;
+    outline: none;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
 }
-.lable.user-lable{
-    width: 250px;
+/* Not Firefox */
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 2px;
+    height: 100%;
+    background: rgb(255, 255, 255);
+    cursor: pointer;
 }
-.lable.palate-lable{
-    width: 250px;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-    border-bottom-left-radius: 0px;
-    border-bottom-right-radius: 0px;
-    border-bottom-width: 0px;
-    border-top-width: 2px;
-    margin-top: 20px;
+.slider::-webkit-slider-runnable-track{
+    opacity: 0;
 }
+/* Firefox */
+.slider::-moz-range-thumb {
+    width: 2px;
+    height: 100%;
+    background: rgb(255, 255, 255);
+    cursor: pointer;
+}
+.slider::-moz-range-track{
+    opacity: 0;
+}
+
+/* Hue Selector */
+
 .hue-menu{
     height: 35px;
     width: 100%;
@@ -206,11 +255,6 @@ div{
     align-items: center;
     justify-content: left;
 }
-input{
-    text-shadow: 0px 0px 2px rgb(55, 194, 236), 
-                    0px 0px 1px rgb(18, 107, 134),
-                    0px 0px 10px rgb(0, 52, 68);
-}
 input[id=hue-field]{
     width: 15%;
     background: radial-gradient(rgba(0, 97, 114, 0.644), rgb(0, 97, 114));
@@ -218,6 +262,9 @@ input[id=hue-field]{
     border-width: 0px;
     text-align: center;
 }
+
+/* Saturation Selector */
+
 .saturation-menu{
     height: 35px;
     width: 100%;
@@ -260,6 +307,9 @@ input[id=saturation-field]{
     border-width: 0px;
     text-align: center;
 }
+
+/* Lightness Selector */
+
 .lightness-menu{
     height: 35px;
     width: 100%;
@@ -302,7 +352,9 @@ input[id=lightness-field]{
     border-width: 0px;
     text-align: center;
 }
+
 /* Modals */
+
 .modal{
     display: block;
     position: fixed;

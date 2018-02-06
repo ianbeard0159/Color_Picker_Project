@@ -87,52 +87,133 @@ $(document).ready(function(){
     var palateList = [];
     var state = "login";
     var buttonHeld = false;
+
+    var s_slider = document.getElementById("saturation-slider");
+    s_slider.value = saturation;
+    var h_slider = document.getElementById("hue-slider");
+    h_slider.value = hue;
+    var l_slider = document.getElementById("lightness-slider");
+    l_slider.value = lightness;
+
     // Initialize the text fields
     $("#loginUser").val("");
     $("#username").val("");
     // Initialize the color display
     change_color(hue, saturation, lightness);
     $("#palate-lable").text("Current Palate: -");
-    // Toggle the color's hue using the arrow buttons
+
+    // -= Hue Selector =-
+
+    // Change hue with arrow buttons
     $(".hue-left").click(function(){
         if(hue > 0){
             hue--;
             change_color(hue, saturation, lightness);
+            h_slider.value = hue;
         }
     });
     $(".hue-right").click(function(){
         if(hue < 360){
             hue++;
             change_color(hue, saturation, lightness);
+            h_slider.value = hue;
         }
     });
+    // Change hue with slider
+    h_slider.oninput = function(){
+        hue = this.value;
+        change_color(hue, saturation, lightness);
+    };
+    // Change hue on keystroke
+    $("input[id=hue-field]").keyup(function(){
 
-    // Toggle the color's sturation using the arrow buttons
+        // Make sure that the Hue is between 0 and 360
+        hue = $("#hue-field").val();
+        if(hue > 360){
+            hue = 360;
+        }
+        else if(hue < 0){
+            hue = 0;
+        }
+        h_slider.value = hue;
+
+        change_color(hue, saturation, lightness);
+    });
+
+    // -= Saturation Selector =-
+
+    // Change saturation with arrow buttons
     $(".saturation-left").click(function(){
         if(saturation > 0){
             saturation--;
+            s_slider.value = saturation;
             change_color(hue, saturation, lightness);
         }
     });
     $(".saturation-right").click(function(){
         if(saturation < 100){
             saturation++;
+            s_slider.value = saturation;
             change_color(hue, saturation, lightness);
         }
     });
+    // Change saturation with slider
+    s_slider.oninput = function(){
+        saturation = this.value;
+        change_color(hue, saturation, lightness);
+    };
+    // Change saturation on keystroke
+    $("input[id=saturation-field]").keyup(function(){
 
-    // Toggle the color's lightness using the arrow buttons
+        // Make sure that the Saturation is between 0 and 100
+        saturation = $("#saturation-field").val();
+        if(saturation > 100){
+            saturation = 100;
+        }
+        else if(saturation < 0){
+            saturation = 0;
+        }
+        s_slider.value = saturation;
+
+        change_color(hue, saturation, lightness);
+    });
+
+    // -= Lightness Slider =-
+
+    // Change lightness with arrow buttons
     $(".lightness-left").click(function(){
         if(lightness > 0){
             lightness--;
             change_color(hue, saturation, lightness);
+            l_slider.value = lightness;
         }
     });
     $(".lightness-right").click(function(){
         if(lightness < 100){
             lightness++;
             change_color(hue, saturation, lightness);
+            l_slider.value = lightness;
         }
+    });
+    // Change lightness with slider
+    l_slider.oninput = function(){
+        lightness = this.value;
+        change_color(hue, saturation, lightness);
+    };
+    // Change lightness on keystroke
+    $("input[id=lightness-field]").keyup(function(){
+
+        // Make sure that the Lightness is between 0 and 100
+        lightness = $("#lightness-field").val();
+        if(lightness > 100){
+            lightness = 100;
+        }
+        else if(lightness < 0){
+            lightness = 0;
+        }
+        l_slider.value = lightness;
+
+        change_color(hue, saturation, lightness);
     });
 
     // Change the color of clickable elements on mouse events
@@ -153,67 +234,71 @@ $(document).ready(function(){
         "radial-gradient(rgba(50, 235, 255, .644), rgb(50, 235, 255))");
     });
 
-    // Change the color to field entries on keystroke
-    $("input[id=hue-field]").keyup(function(){
-
-        // Make sure that the Hue is between 0 and 360
-        hue = $("#hue-field").val();
-        if(hue > 360){
-            hue = 360;
-        }
-        else if(hue < 0){
-            hue = 0;
-        }
-
-        change_color(hue, saturation, lightness);
-    });
-
-    // Change the color to field entries on keystroke
-    $("input[id=saturation-field]").keyup(function(){
-
-        // Make sure that the Saturation is between 0 and 100
-        saturation = $("#saturation-field").val();
-        if(saturation > 100){
-            saturation = 100;
-        }
-        else if(saturation < 0){
-            saturation = 0;
-        }
-
-        change_color(hue, saturation, lightness);
-    });
-
-    // Change the color to field entries on keystroke
-    $("input[id=lightness-field]").keyup(function(){
-
-        // Make sure that the Lightness is between 0 and 100
-        lightness = $("#lightness-field").val();
-        if(lightness > 100){
-            lightness = 100;
-        }
-        else if(lightness < 0){
-            lightness = 0;
-        }
-
-        change_color(hue, saturation, lightness);
-    });
-
-    // -=Manage modals used by the application=-
+    // -= Manage modals used by the application =-
 
     // Change enterpress function depending on the state variable
     $(document).keypress(function(e){
         if(e.which == 13){
+            // Login Menu
             if(state == "login"){
                 $("#login-btn").click();
             }
+            // New Account Menu
             else if(state == "new-user"){
                 $("#new-user-btn").click();
             }
+            // Load Menu
+            else if(state == "load palate"){
+                $("#load-palate-btn").click();
+            }
+            // Save Menu
+            else if(state == "save palate"){
+                $(".save-text").click();
+            }
+            // New Palate Menu
+            else if(state == "new palate"){
+                $("#new-palate-btn").click();
+            }
+            // Main Page
             else if(state == "main"){
                 $(".text.color-text").click();
             }
+            // Unexpected Cases
+            else{
+                console.log("enter");
+            }
         }
     });
+    // Have the cancel link in any menu return to the main page
+    $("a[id =cancel-link]").click(function(){
+        $(".modal").css("display", "none");
+        $(".new-palate-menu").css("display", "none");
+        $(".load-palate.menu").css("display", "none");
+        $(".save-palate.menu").css("display", "none");
+        state = "main";
+        selectedPalate = "";
+    });
+    // Add a color to the palate
+    $(".text.color-text").click(function(){
+        palateList.push("hsl(" + hue + "," + saturation + "%," + lightness + "%)");
+        populate_palate_menu(palateList);
+    });
+    // Empty the palate
+    $(".text.palate-text").click(function(){
+        palateList = [];
+        populate_palate_menu(palateList);
+    });
+    // Select palate from save/load menu
+    $(".existing-palate-field").on("click", "p.palate-list-entry", function(e){
+        $(".palate-list-entry").css("background-color", "rgba(0, 0, 0, 0)");
+        $(this).css("background-color", "rgba(0, 20, 40, 0.5)");
+        selectedPalate = e.target.id;
+        if(state = "save palate"){
+            $("#save-field").val(selectedPalate);
+        }
+    });
+
+    // -= Login Menu =-
 
     // Attempt to log into an existing account
     $("#login-btn").click(function(){
@@ -260,6 +345,7 @@ $(document).ready(function(){
                 currentUser = $("#username").val();
                 $("#user-lable").text("Current User: " + currentUser);
                 $(".new-user-menu").css("display", "none");
+                $(".start-menu").css("display", "none");
                 $(".modal").css("display", "none");
                 state = "main";
             }
@@ -269,6 +355,9 @@ $(document).ready(function(){
             }
         });
     });
+
+    // -= New Palate Menu =-
+
     // Create a new palate
     $("#new-palate-btn").click(function(){
         console.log("New Palate Attempt");
@@ -294,45 +383,24 @@ $(document).ready(function(){
             }
         });
     })
+    // Open Menu
     $(".button#new-palate").click(function(){
         $(".modal").css("display", "block");
         $(".new-palate-menu").css("display", "block");
         $(".text-field").val("");
         state = "new palate";
     });
-    $("a[id =cancel-link]").click(function(){
-        $(".modal").css("display", "none");
-        $(".new-palate-menu").css("display", "none");
-        $(".load-palate.menu").css("display", "none");
-        $(".save-palate.menu").css("display", "none");
-        state = "main";
-        selectedPalate = "";
-    });
-    // Add a color to the palate
-    $(".text.color-text").click(function(){
-        palateList.push("hsl(" + hue + "," + saturation + "%," + lightness + "%)");
-        populate_palate_menu(palateList);
-    });
-    // Empty the palate
-    $(".text.palate-text").click(function(){
-        palateList = [];
-        populate_palate_menu(palateList);
-    });
-    // Load Palate
+
+    // -= Load Palate Menu =-
+
+    // Open Menu
     $(".button#load-palate").click(function(){
         $(".modal").css("display", "block");
         $(".load-palate.menu").css("display", "block");
         populate_palate_list(currentUser);
         state = "load palate";
     });
-    $(".existing-palate-field").on("click", "p.palate-list-entry", function(e){
-        $(".palate-list-entry").css("background-color", "rgba(0, 0, 0, 0)");
-        $(this).css("background-color", "rgba(0, 20, 40, 0.5)");
-        selectedPalate = e.target.id;
-        if(state = "save palate"){
-            $("#save-field").val(selectedPalate);
-        }
-    });
+    // Load the selected palate
     $("#load-palate-btn").click(function(){
         if(selectedPalate != ""){
             currentPalate = selectedPalate;
@@ -361,7 +429,10 @@ $(document).ready(function(){
             state = "main"
         }
     });
-    // Save Palate
+
+    // -= Save Palate Menu =-
+
+    // Open Menu
     $(".button#save-palate").click(function(){
         $(".modal").css("display", "block");
         $(".save-palate.menu").css("display", "block");
@@ -369,6 +440,7 @@ $(document).ready(function(){
         $(".palate-list-entry#" + currentPalate).click();
         state = "save palate";
     });
+    // Save as the selected palate
     $(".save-text").click(function(){
         var inPalate = $("#save-field").val();
         var colorObj = {colorArray: palateList};
