@@ -43,13 +43,15 @@ function populate_palate_menu(inList){
     for(i = 0; i < inList.length; i++){
         htmlString += '<div class = "palate-entry" \
                       style = "background-color: ' + inList[i] + '" \
-                      id = "' + inList[i] + '"></div>';
+                      id = "' + inList[i] + '"> \
+                      <div class = "palate-entry-x" id = "' + inList[i] + '-x">x \
+                      </div></div>';
     }
     $(".palate-window").html(htmlString);
 }
 
 // Fill the list of existing palates in the save/lad menus
-function populate_palate_list(inUser){
+function populate_palate_list(inUser, inPalate){
     $(".existing-palate-field").html("- No Palates Exist");
     $.post("/populate-palate-list",
     {
@@ -67,6 +69,8 @@ function populate_palate_list(inUser){
             }
             if(html != ""){
                 $(".existing-palate-field").html(html);
+                document.getElementById(inPalate).click();
+                console.log("Current Palate: " + inPalate);
             }
         }
         else{
@@ -237,8 +241,11 @@ $(document).ready(function(){
     // -= Manage modals used by the application =-
 
     // Change enterpress function depending on the state variable
-    $(document).keypress(function(e){
-        if(e.which == 13){
+    $(document).on('keydown',function(e){
+        if(e.which == 13 || e.keyCode == 13){
+            console.log("Enterpress,\nCurrent State: " + state);
+            e.preventDefault();
+
             // Login Menu
             if(state == "login"){
                 $("#login-btn").click();
@@ -271,20 +278,33 @@ $(document).ready(function(){
     });
     // Have the cancel link in any menu return to the main page
     $("a[id =cancel-link]").click(function(){
+        console.log("cancel");
         $(".modal").css("display", "none");
         $(".new-palate-menu").css("display", "none");
         $(".load-palate.menu").css("display", "none");
         $(".save-palate.menu").css("display", "none");
         state = "main";
         selectedPalate = "";
+        $(".existing-palate-field").html("");
     });
     // Add a color to the palate
     $(".text.color-text").click(function(){
-        palateList.push("hsl(" + hue + "," + saturation + "%," + lightness + "%)");
-        populate_palate_menu(palateList);
+        // No duplicate entries in the palate list
+        var check = true;
+        for(var i = 0; i < palateList.length; i++){
+            if(palateList[i] == "hsl(" + hue + "," + saturation + "%," + lightness + "%)"){
+                check = false;
+            }
+        }
+        if(check){
+            console.log("Add Color: hsl(" + hue + "," + saturation + "%," + lightness + "%)");
+            palateList.push("hsl(" + hue + "," + saturation + "%," + lightness + "%)");
+            populate_palate_menu(palateList);
+        }
     });
     // Empty the palate
     $(".text.palate-text").click(function(){
+        console.log("Clear Palate");
         palateList = [];
         populate_palate_menu(palateList);
     });
@@ -293,8 +313,63 @@ $(document).ready(function(){
         $(".palate-list-entry").css("background-color", "rgba(0, 0, 0, 0)");
         $(this).css("background-color", "rgba(0, 20, 40, 0.5)");
         selectedPalate = e.target.id;
+        console.log("Selected Palate: " + selectedPalate);
         if(state = "save palate"){
             $("#save-field").val(selectedPalate);
+        }
+    });
+    // Click a palate entry to change the color
+    $(".palate-window").on("click", ".palate-entry", function(e){
+        var colorString = e.target.id;
+        // Don't run if the 'x' on the color was clicked
+        var check = colorString.search("-x");
+        if(check == -1){
+            console.log("Selected Color: " + colorString);
+    
+            // Change 'hsl(#,#%,#%) into #,#,# then split the values into an array
+            colorString = colorString.replace("hsl(", "");
+            colorString = colorString.replace(/%/g, "");
+            colorString = colorString.replace(")", "");
+            var colorArray = colorString.split(",");
+    
+            // Change the color value to the selected color
+            h_slider.value = hue = colorArray[0];
+            s_slider.value = saturation = colorArray[1];
+            l_slider.value = lightness = colorArray[2];
+            change_color(colorArray[0], colorArray[1], colorArray[2]);
+        }
+    });
+    // Have the palate entry's 'x' appear on mouse hover
+    $(".palate-window").on("mouseenter", ".palate-entry", function(e){
+        $(this).css("border-style", "solid");
+        var entryX = document.getElementById(e.target.id + "-x");
+        $(entryX).css("display", "block"); 
+    });
+    $(".palate-window").on("mouseleave", ".palate-entry", function(e){
+        $(this).css("border-style", "none");
+        var entryX = document.getElementById(e.target.id + "-x");
+        $(entryX).css("display", "none"); 
+    });
+    $(".palate-menu").on("mouseleave", function(){
+        $(".palate-entry-x").css("display", "none"); 
+    });
+    // Remove a color from the palate list
+    $(".palate-window").on("click", ".palate-entry-x", function(e){
+        var palateEntry = (e.target.id).replace("-x", "");
+        console.log("Removing: " + palateEntry);
+        var color = "";
+        var index = 0;
+        for(var i = 0; i < palateList.length; i++){
+            console.log(palateList[i] + " =? " + palateEntry);
+            if(palateList[i] == palateEntry){
+                color = palateEntry;
+                index = i;
+            }
+        }
+        palateList.splice(index, 1);
+        console.log("Found: " + color);
+        if(color){
+            populate_palate_menu(palateList);
         }
     });
 
@@ -302,6 +377,7 @@ $(document).ready(function(){
 
     // Attempt to log into an existing account
     $("#login-btn").click(function(){
+        console.log("Login Attempt: " + $("#loginUser").val());
         user = $("#loginUser").val();
         pass = $("#loginPass").val();
         // Check the database to see if the submitted login credentials are valid
@@ -315,24 +391,25 @@ $(document).ready(function(){
                 $(".login-error").text("Username and password do not match");
             }
             else{
+                state = "main";
                 currentUser = $("#loginUser").val();
                 $("#user-lable").text("Current User: " + currentUser);
                 $(".modal").css("display", "none");
                 $(".new-user-menu").css("display", "none");
                 $(".start-menu").css("display", "none");
-                state = "main";
             }
         });
     });
     // Open the create account window
     $("#new-user-link").click(function(){
+        console.log("Open New Account Menu");
+        state = "new-user";
         $(".start-menu").css("display", "none");
         $(".new-user-menu").css("display", "block");
-        state = "new-user";
     });
     // Attempt to create a new account with the provided credentials
     $("#new-user-btn").click(function(){
-        console.log($("#loginUser").val());
+        console.log("New User Attempt: " + $("#username").val());
         // Check the database to see if the submitted login credentials are valid
         $.post("/new-user",
         {
@@ -342,12 +419,12 @@ $(document).ready(function(){
         },
         function(data, status){
             if(data == "success"){
+                state = "main";
                 currentUser = $("#username").val();
                 $("#user-lable").text("Current User: " + currentUser);
                 $(".new-user-menu").css("display", "none");
                 $(".start-menu").css("display", "none");
                 $(".modal").css("display", "none");
-                state = "main";
             }
             else{
                 $("#new-user-requirements").css("display", "none");
@@ -360,8 +437,8 @@ $(document).ready(function(){
 
     // Create a new palate
     $("#new-palate-btn").click(function(){
-        console.log("New Palate Attempt");
         inPalate = $("#palate-name").val();
+        console.log("New Palate Attempt: " + inPalate);
         // Attempt to create the new palate
         $.post("/new-palate",
         {
@@ -385,23 +462,26 @@ $(document).ready(function(){
     })
     // Open Menu
     $(".button#new-palate").click(function(){
+        console.log("Open New Palate Menu");
+        state = "new palate";
         $(".modal").css("display", "block");
         $(".new-palate-menu").css("display", "block");
         $(".text-field").val("");
-        state = "new palate";
     });
 
     // -= Load Palate Menu =-
 
     // Open Menu
     $(".button#load-palate").click(function(){
+        console.log("Open Load Menu");
+        state = "load palate";
         $(".modal").css("display", "block");
         $(".load-palate.menu").css("display", "block");
         populate_palate_list(currentUser);
-        state = "load palate";
     });
     // Load the selected palate
     $("#load-palate-btn").click(function(){
+        console.log("Load Attempt: " + selectedPalate);
         if(selectedPalate != ""){
             currentPalate = selectedPalate;
             selectedPalate = "";
@@ -426,6 +506,9 @@ $(document).ready(function(){
             $(".modal").css("display", "none");
             $(".load-palate.menu").css("display", "none");
             $("#palate-lable").text("Current Palate: " + currentPalate);
+            $(".palate-window").html("");
+            $(".existing-palate-field").html("");
+            selectedPalate = "";
             state = "main"
         }
     });
@@ -434,15 +517,16 @@ $(document).ready(function(){
 
     // Open Menu
     $(".button#save-palate").click(function(){
+        console.log("Open Save Menu");
+        state = "save palate";
         $(".modal").css("display", "block");
         $(".save-palate.menu").css("display", "block");
-        populate_palate_list(currentUser);
-        $(".palate-list-entry#" + currentPalate).click();
-        state = "save palate";
+        populate_palate_list(currentUser, currentPalate);
     });
     // Save as the selected palate
     $(".save-text").click(function(){
         var inPalate = $("#save-field").val();
+        console.log("Save Attempt: " + inPalate);
         var colorObj = {colorArray: palateList};
 
         console.log(inPalate);
@@ -459,6 +543,8 @@ $(document).ready(function(){
                 $("#palate-lable").text("Current Palate: " + currentPalate);
                 $(".save-palate.menu").css("display", "none");
                 $(".modal").css("display", "none");
+                $(".existing-palate-field").html("");
+                selectedPalate = "";
                 state = "main"
             }
             else{

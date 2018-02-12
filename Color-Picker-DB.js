@@ -67,17 +67,19 @@ function drop_table(name){
 
 // Create an entry in the database for a new palate
 function add_palate(user, name){
-
+    console.log("Add Palate: " + name);
     // Identify User
-    sql = "SELECT user_id FROM userTable WHERE username='" + user + "';";
-    con.query(sql, function(err, result) {
+    var input = [user];
+    var sql = "SELECT user_id FROM userTable WHERE username = ?;";
+    con.query(sql, input, function(err, result) {
         if(err) throw err;
         userID = result[0].user_id;
 
         // Add the palate to the database under the current user's account
+        input = [userID, name];
         sql = "INSERT INTO palateTable (user_id, palate_name) " 
-        + "VALUES (" + userID + ", '" + name + "')";
-        con.query(sql, function(err, result){
+        + "VALUES (?, ?)";
+        con.query(sql, input, function(err, result){
             if(err) throw err;
             console.log("palate added");
         });
@@ -136,16 +138,17 @@ app.get('/', function(req, res){
 
 // Check if the user has valid login credentials
 app.post('/login', urlencodedParser, function(req, res){
-    inUser = req.body.user;
-    inPass = req.body.pass;
-    console.log("Login Attempt");
+    var inUser = req.body.user;
+    var inPass = req.body.pass;
+    console.log("Login Attempt: " + inUser);
 
     // Check if the input username/password combination is in the database
+    var input = [inUser, inPass];
     var sql = "SELECT username, pass FROM userTable WHERE EXISTS (" 
                 + "SELECT username, pass FROM userTable WHERE "
-                + "username='" + inUser + "' AND "
-                + "pass='" + inPass + "');";
-    con.query(sql, function (err, result, fields) {
+                + "username = ? AND "
+                + "pass = ?);";
+    con.query(sql, input, function (err, result, fields) {
         if (err) throw err;
 
         // Return whether or not the login credentials were valid
@@ -154,7 +157,6 @@ app.post('/login', urlencodedParser, function(req, res){
             res.end("fail");
         }
         else{
-            console.log("Success");
             res.end("success");
         }
     });
@@ -163,12 +165,12 @@ app.post('/login', urlencodedParser, function(req, res){
 
 // Add new accounts to the database
 app.post('/new-user', urlencodedParser, function(req, res){
-    errorString = "";
-    injectCheck = false;
+    var errorString = "";
+    var injectCheck = false;
 
-    inUser = req.body.user;
-    inPassA = req.body.passA;
-    inPassB = req.body.passB;
+    var inUser = req.body.user;
+    var inPassA = req.body.passA;
+    var inPassB = req.body.passB;
     console.log("New User Attempt");
 
     // Check if the password is valid
@@ -199,10 +201,11 @@ app.post('/new-user', urlencodedParser, function(req, res){
     if(!injectCheck){
 
         // Check to see if the account already exists
+        var input = [inUser];
         var sql = "SELECT username FROM userTable WHERE EXISTS (" 
                 + "SELECT username FROM userTable WHERE "
-                + "username='" + inUser + "');";
-        con.query(sql, function(err, result, fields){
+                + "username = ?);";
+        con.query(sql, input, function(err, result, fields){
             if(err) throw (err);
 
             // If the username is already being used, add that to the error string
@@ -212,9 +215,10 @@ app.post('/new-user', urlencodedParser, function(req, res){
         
             // If there are no errors, create the account
             if(errorString == ""){
+                input = [inUser, inPassA];
                 sql = "INSERT INTO userTable (username, pass) "
-                    + "VALUES ('" + inUser + "', '" + inPassA + "');";
-                con.query(sql, function (err, result, fields) {
+                    + "VALUES (?, ?);";
+                con.query(sql, input, function (err, result, fields) {
                     if (err) throw err;
                 });
                 res.end("success");
@@ -235,30 +239,26 @@ app.post('/new-user', urlencodedParser, function(req, res){
 app.post("/new-palate", urlencodedParser, function(req, res){
     inUser = req.body.user;
     inName = req.body.name;
-    injectCheck = false;
+    console.log("New Palate Attempt: " + inName);
 
-    if(!injectCheck)
-    {
-        add_palate(inUser, inName);
-        res.end("success");
-    }
-    else{
-        res.end("fail");
-    }
+    add_palate(inUser, inName);
+    res.end("success");
+    
 });
 
 // Populate the list of existing palates in the save/load menus
 app.post("/populate-palate-list", urlencodedParser, function(req, res){
-    inUser = req.body.user;
-    output = {palateArray: []};
+    var inUser = req.body.user;
+    var output = {palateArray: []};
 
+    var input = [inUser];
     var sql = "SELECT palate_name FROM palateTable "
-            + "WHERE user_id=(SELECT user_id FROM userTable "
-            + "WHERE username='" + inUser + "');";
-    con.query(sql, function(err, result, fields){
+            + "WHERE user_id = (SELECT user_id FROM userTable "
+            + "WHERE username = ?);";
+    con.query(sql, input, function(err, result, fields){
         if(err) throw(err);
 
-        console.log(inUser + ":\n" + sql + "\n");
+        console.log("Polulate Palate List: ");
         for(i = 0; i < result.length; i++){
             console.log(result[i].palate_name);
             output.palateArray.push(result[i].palate_name);
@@ -272,42 +272,54 @@ app.post("/save-palate", urlencodedParser, function(req, res){
     inUser = req.body.user;
     inPalate = req.body.palate;
     inColors = (JSON.parse(req.body.colors)).colorArray;
-
-    console.log(inColors + "\n" + inUser);
+    console.log("Save Palate Attempt: " + inPalate);
+    console.log(inColors);
 
     //Creat the palate if it doesn't exist
     var sql = "SELECT palate_id FROM palateTable "
-                + "WHERE palate_name='" + inPalate 
-                + "' AND user_id=(SELECT user_id FROM userTable "
-                            + "WHERE username='" + inUser + "');";
-    con.query(sql, function(err, result, fields){
+            + "WHERE palate_name= ? " 
+            + "AND user_id=(SELECT user_id FROM userTable "
+                         + "WHERE username = ? );";
+    var input = [inPalate, inUser];
+    con.query(sql, input, function(err, result, fields){
         if(err) throw(err);
 
+        console.log(result);
         // If the palate doesn't exist
-        if(!result){
+        emptyArray = []
+        if(result == emptyArray){
+            console.log("Creating " + inPalate);
             add_palate(inUser, inPalate);
+        }
+        else{
+            console.log(inPalate + " already exists");
         }
         // Clear all of the colors that used to belong to the palate being saved
         //      Then add the new colors to the color table
         var sql = "DELETE FROM colorTable "
                 + "WHERE palate_id=(SELECT palate_id FROM palateTable "
-                                 + "WHERE palate_name='" + inPalate 
-                                 + "' AND user_id=(SELECT user_id FROM userTable "
-                                                + "WHERE username='" + inUser + "'));";
-        con.query(sql, function(err, result, fields){
+                                 + "WHERE palate_name= ? " 
+                                 + "AND user_id = (SELECT user_id FROM userTable "
+                                                + "WHERE username = ?));";
+        var input = [inPalate, inUser];
+        con.query(sql, input, function(err, result, fields){
             if(err) throw(err);
             sql = "INSERT INTO colorTable (color_value, palate_id) VALUES ";
+            input = [];
             for(i = 0; i < inColors.length; i++){
                 if(i != 0){
                     sql += ", ";
                 }
-                sql += "('" + inColors[i] + "', (SELECT palate_id FROM palateTable "
-                                                    + "WHERE palate_name='" + inPalate 
-                                                    + "' AND user_id=(SELECT user_id FROM userTable "
-                                                                   + "WHERE username='" + inUser + "')))";
+                input.push(inColors[i]);
+                input.push(inPalate);
+                input.push(inUser);
+                sql += "( ? , (SELECT palate_id FROM palateTable "
+                            + "WHERE palate_name = ? "
+                            + "AND user_id = (SELECT user_id FROM userTable "
+                                            + "WHERE username = ? )))";
             }
             sql += ";";
-            con.query(sql, function(err, result, fields){
+            con.query(sql, input, function(err, result, fields){
                 if(err) throw(err);
         
                 res.end(inPalate);
@@ -321,15 +333,17 @@ app.post("/load-palate", urlencodedParser, function(req, res){
     inUser = req.body.user;
     inPalate = req.body.palate;
     output = {outColors: []};
+    console.log("Load Palate Attempt: " + inPalate);
 
     console.log("Loading: " + inPalate);
 
-    sql = "SELECT color_value FROM colorTable "
+    var input = [inPalate, inUser];
+    var sql = "SELECT color_value FROM colorTable "
         + "WHERE palate_id=(SELECT palate_id FROM palateTable "
-                         + "WHERE palate_name='" + inPalate 
-                         + "' AND user_id=(SELECT user_id FROM userTable "
-                                        + "WHERE username='" + inUser + "'));";
-    con.query(sql, function(err, result, fields){
+                         + "WHERE palate_name = ? " 
+                         + "AND user_id=(SELECT user_id FROM userTable "
+                                        + "WHERE username = ?));";
+    con.query(sql, input, function(err, result, fields){
         if(err) throw(err);
         for(i = 0; i < result.length; i++){
             output.outColors.push(result[i].color_value);
