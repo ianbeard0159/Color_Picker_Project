@@ -86,8 +86,8 @@
                         <div class = "vertical-divider"></div>
                         <div class = "text-block">
                             <p id = "new-user-requirements">
-                                - All Fields must be filled<br>
-                                - Password must be at least 8 characters<br>
+                                - All Fields must be filled<br><br>
+                                - Password must be at least 8 characters<br><br>
                                 - Username and password cannot contain 
                                 the characters<tt> ',  ",</tt> or =
                             </p>
@@ -178,9 +178,23 @@
 
         <!-- Main Page -->
         <div class = "main">
+            <!-- Palate Display -->
+            <div class = "palate-bar">
+                <div class = "lable palate-lable" id = "palate-lable"></div>
+                <div class = "menu palate-menu">
+                    <div class = "text palate-text clickable">
+                        <p>Clear Palate</p>
+                    </div>
+                    <div class = "palate-window">
+                    </div>
+                </div>
+                <div class = "lable user-lable" id = "user-lable"></div>
+
+            </div>
+            
             <div class = "flex-box">
                 <!-- Top Row -->
-                <div class = "color-box">
+                
                     <!-- Color Display -->
                     <div class = "menu color-menu">
                         <div class = "color-window"></div>
@@ -193,7 +207,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class = "buffer"></div>
 
                     <!-- Option Sliders -->
                     <div class = "options-box">
@@ -248,34 +261,25 @@
                         </div>
                         <div class = "lable">Lightness</div>
                     </div>
-                </div>
+                
                 <!-- Button Row -->
                 <div class = "palate-buttons">
                     <button type="button" 
-                            class="clickable button"
+                            class="clickable row button"
                             id = "new-palate">
                             New
                      </button>
                     <button type="button" 
-                            class="clickable button"
+                            class="clickable row button"
                             id = "save-palate">
                             Save
                     <button type="button" 
-                            class="clickable button"
+                            class="clickable row button"
                             id = "load-palate">
                             Load
                      </button>
                 </div>
-                <!-- Palate Display -->
-                <div class = "lable palate-lable" id = "palate-lable"></div>
-                <div class = "menu palate-menu">
-                    <div class = "text palate-text clickable">
-                        <p>Clear Palate</p>
-                    </div>
-                    <div class = "palate-window">
-                    </div>
-                </div>
-                <div class = "lable user-lable" id = "user-lable"></div>
+                <div class = "buffer bottom"></div>
             </div>
 
         </div>
